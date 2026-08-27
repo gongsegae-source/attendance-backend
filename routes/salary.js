@@ -109,12 +109,16 @@ router.get('/calculate', async (req, res) => {
   const gross = emp.pay_type === 'monthly' ? emp.monthly : emp.hourly * totalHours;
 
   // 보험료율
-  const { data: rates } = await supabase.from('insurance_rates').select('*').eq('id', 1).single();
-  const np = gross * rates.np_rate / 100;
-  const hi = gross * rates.hi_rate / 100;
-  const lt = hi * rates.lt_rate / 100;
-  const ei = gross * rates.ei_rate / 100;
-  const totalDeduction = np + hi + lt + ei;
+  const nontaxTotal = req.query.nontax ? parseInt(req.query.nontax) : 0;
+const taxable = Math.max(0, gross - nontaxTotal);
+const np = taxable * rates.np_rate / 100;
+const hi = taxable * rates.hi_rate / 100;
+const lt = hi * rates.lt_rate / 100;
+const ei = taxable * rates.ei_rate / 100;
+const incomeRate = parseFloat(req.query.incomeRate) || 0;
+const income = taxable * incomeRate / 100;
+const local = income * 0.1;
+const totalDeduction = np + hi + lt + ei + income + local;
 
   res.json({
     employee: emp,

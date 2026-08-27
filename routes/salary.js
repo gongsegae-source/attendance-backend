@@ -120,15 +120,17 @@ const income = taxable * incomeRate / 100;
 const local = income * 0.1;
 const totalDeduction = np + hi + lt + ei + income + local;
 
-  res.json({
-    employee: emp,
-    totalHours: Math.round(totalHours * 10) / 10,
-    workDays: logs?.length || 0,
-    gross,
-    deductions: { np, hi, lt, ei, total: totalDeduction },
-    netPay: gross - totalDeduction,
-    rates,
-  });
+ res.json({
+  employee: emp,
+  totalHours: Math.round(totalHours * 10) / 10,
+  workDays: logs?.length || 0,
+  gross,
+  nontaxTotal,
+  taxable,
+  deductions: { np, hi, lt, ei, income, local, total: totalDeduction },
+  netPay: gross - totalDeduction,
+  rates,
+});
 });
 
 module.exports = router;
